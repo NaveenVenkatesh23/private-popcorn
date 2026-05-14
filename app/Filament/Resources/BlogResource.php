@@ -41,6 +41,7 @@ class BlogResource extends Resource
                 RichEditor::make('description')->required()->columnSpan('full'),
                 FileUpload::make('image')
                     ->image()
+                    ->required()
                     ->disk('public')
                     ->directory('blogs')
                     ->visibility('public'),
