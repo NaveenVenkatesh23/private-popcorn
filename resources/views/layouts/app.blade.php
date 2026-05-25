@@ -322,7 +322,7 @@
         class="max-w-7xl mx-auto pt-6 mt-4 border-t border-white/5 flex flex-col md:flex-row justify-between items-center"
       >
         <p class="text-gray-200 text-[14px] uppercase tracking-widest">
-          © 2026 Private Popcorn. All rights reserved. | Designed & Developed by <a href="https://nagaprasad-ts.github.io/portfolio" target="_blank" class="text-blue-500 underline">Nagaprasad T S</a>
+          © 2026 Private Popcorn. All rights reserved.
         </p>
         <div class="flex space-x-6 text-gray-500">
           <a href="https://www.instagram.com/private_popcornofficial/" class="hover:text-gold transition-colors">
