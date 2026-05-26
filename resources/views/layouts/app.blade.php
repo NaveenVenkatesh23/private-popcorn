@@ -5,6 +5,20 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        <meta property="og:title" content="Private Popcorn - Luxury Private Cinema in Bangalore">
+        <meta property="og:description" content="Experience unparalleled luxury and create timeless memories at Private Popcorn. Bangalore's premier private theatre for birthdays, anniversaries, date nights and special celebrations.">
+        <meta property="og:image" content="https://privatepopcorn.com/images/social-share.jpg">
+        <meta property="og:image:alt" content="Private Popcorn - Luxury Private Cinema in Bangalore">
+        <meta property="og:image:secure_url" content="https://privatepopcorn.com/images/social-share.jpg">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:url" content="https://privatepopcorn.com/">
+        <meta property="twitter:card" content="summary_large_image">
+        <meta property="twitter:url" content="https://privatepopcorn.com/">
+        <meta property="twitter:title" content="Private Popcorn - Luxury Private Cinema in Bangalore">
+        <meta property="twitter:description" content="Experience unparalleled luxury and create timeless memories at Private Popcorn. Bangalore's premier private theatre for birthdays, anniversaries, date nights and special celebrations.">
+        <meta property="twitter:image" content="https://privatepopcorn.com/images/social-share.jpg">
+
         @yield('meta')
 
         <title>{{ config('app.name') }}</title>
