@@ -1,4 +1,10 @@
 @extends('layouts.app')
+@section('meta')
+<title>Cancellation & Refund Policy - Private Popcorn</title>
+<meta name="description" content="Learn about Private Popcorn's cancellation and refund policy for private theatre bookings in Bangalore.">
+<meta property="og:title" content="Cancellation & Refund Policy - Private Popcorn">
+<meta property="og:url" content="https://privatepopcorn.com/cancellation-and-refund">
+@endsection
 
 @section('content')
     <!-- Main Content -->

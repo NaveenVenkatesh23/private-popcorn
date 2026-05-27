@@ -1,4 +1,10 @@
 @extends('layouts.app')
+@section('meta')
+<title>Terms & Conditions - Private Popcorn</title>
+<meta name="description" content="Read the terms and conditions for booking and using Private Popcorn's private theatre services in Bangalore.">
+<meta property="og:title" content="Terms & Conditions - Private Popcorn">
+<meta property="og:url" content="https://privatepopcorn.com/terms-and-conditions">
+@endsection
 
 @section('content')
     <main class="flex-grow pt-32">

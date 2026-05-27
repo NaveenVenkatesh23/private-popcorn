@@ -1,11 +1,17 @@
 @extends('layouts.app')
 
 @section('meta')
-  {{-- Seo team --}}
-  <link rel="canonical" href="https://privatepopcorn.com" />
-  <title>Private Popcorn - Luxury Private Cinema</title>
-  <meta name="description" content="Experience unparalleled luxury and create timeless memories at Private Popcorn. Your exclusive event starts here.">
-  <meta name="keywords" content="private cinema, luxury theater, private screening, movie night, exclusive events">
+
+<title>Private Popcorn - Luxury Private Cinema in Bangalore</title>
+<meta name="description" content="Bangalore's premier private theatre for birthdays, anniversaries, date nights and special celebrations. Book your exclusive cinematic experience today.">
+<meta name="keywords" content="private cinema bangalore, private theatre bangalore, birthday celebration bangalore, anniversary private screening">
+<meta property="og:title" content="Private Popcorn - Luxury Private Cinema in Bangalore">
+<meta property="og:description" content="Bangalore's premier private theatre for birthdays, anniversaries, date nights and special celebrations.">
+<meta property="og:url" content="https://privatepopcorn.com/">
+<meta property="twitter:title" content="Private Popcorn - Luxury Private Cinema in Bangalore">
+<meta property="twitter:description" content="Bangalore's premier private theatre for birthdays, anniversaries, date nights and special celebrations.">
+<meta property="twitter:url" content="https://privatepopcorn.com/">
+<link rel="canonical" href="https://privatepopcorn.com/" />
 @endsection
 
 @section('content')

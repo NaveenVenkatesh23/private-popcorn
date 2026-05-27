@@ -1,10 +1,16 @@
 @extends('layouts.app')
 
 @section('meta')
-    {{-- SEO --}}
-    <title>Private Theatre in Bangalore for Couples, Birthdays & Events</title>
-    <meta name="description" content="Book a private theatre in Bangalore for couples, birthdays, and special moments. Enjoy full privacy, 4K screen, decorations, and easy booking.">
-    <link rel="canonical" href="https://privatepopcorn.com/about-us" />
+<title>About Us - Private Popcorn | Private Theatre in Bangalore</title>
+<meta name="description" content="Learn about Private Popcorn, Bangalore's most exclusive private theatre destination. Discover our story, our spaces and what makes us special.">
+<meta name="keywords" content="about private popcorn, private theatre bangalore, luxury cinema bangalore">
+<meta property="og:title" content="About Us - Private Popcorn | Private Theatre in Bangalore">
+<meta property="og:description" content="Learn about Private Popcorn, Bangalore's most exclusive private theatre destination.">
+<meta property="og:url" content="https://privatepopcorn.com/private-theatre-in-banglore">
+<meta property="twitter:title" content="About Us - Private Popcorn | Private Theatre in Bangalore">
+<meta property="twitter:description" content="Learn about Private Popcorn, Bangalore's most exclusive private theatre destination.">
+<meta property="twitter:url" content="https://privatepopcorn.com/private-theatre-in-banglore">
+<link rel="canonical" href="https://privatepopcorn.com/private-theatre-in-banglore" />
 @endsection
 
 @section('content')

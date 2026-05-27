@@ -21,7 +21,11 @@
 
         @yield('meta')
 
-        <title>{{ config('app.name') }}</title>
+        @hasSection('meta')
+        {{-- title comes from @section('meta') in each page --}}
+        @else
+            <title>Private Popcorn - Luxury Private Cinema in Bangalore</title>
+        @endif
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />

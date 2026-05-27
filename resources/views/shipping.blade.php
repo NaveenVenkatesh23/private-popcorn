@@ -1,4 +1,10 @@
 @extends('layouts.app')
+@section('meta')
+<title>Shipping Policy - Private Popcorn</title>
+<meta name="description" content="Read the shipping policy for Private Popcorn's services and bookings.">
+<meta property="og:title" content="Shipping Policy - Private Popcorn">
+<meta property="og:url" content="https://privatepopcorn.com/shipping">
+@endsection
 
 @section('content')
     <!-- Main Content -->

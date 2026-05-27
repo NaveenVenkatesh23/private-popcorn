@@ -1,4 +1,10 @@
 @extends('layouts.app')
+@section('meta')
+<title>Privacy Policy - Private Popcorn</title>
+<meta name="description" content="Read our privacy policy to understand how Private Popcorn collects, uses and protects your personal information.">
+<meta property="og:title" content="Privacy Policy - Private Popcorn">
+<meta property="og:url" content="https://privatepopcorn.com/privacy-policy">
+@endsection
 
 @section('content')
     <main class="flex-grow pt-32">

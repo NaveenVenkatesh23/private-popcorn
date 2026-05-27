@@ -1,5 +1,16 @@
 @extends('layouts.app')
-<meta name="csrf-token" content="{{ csrf_token() }}">
+@section('meta')
+<title>Book Your Private Theatre - Private Popcorn Bangalore</title>
+<meta name="description" content="Book your exclusive private theatre experience at Private Popcorn Bangalore. Choose your package, pick your date and create an unforgettable memory.">
+<meta name="keywords" content="book private cinema bangalore, private theatre booking, private screening bangalore">
+<meta property="og:title" content="Book Your Private Theatre - Private Popcorn Bangalore">
+<meta property="og:description" content="Book your exclusive private theatre experience at Private Popcorn Bangalore.">
+<meta property="og:url" content="https://privatepopcorn.com/booking">
+<meta property="twitter:title" content="Book Your Private Theatre - Private Popcorn Bangalore">
+<meta property="twitter:description" content="Book your exclusive private theatre experience at Private Popcorn Bangalore.">
+<meta property="twitter:url" content="https://privatepopcorn.com/booking">
+<link rel="canonical" href="https://privatepopcorn.com/booking" />
+@endsection
 @section('content')
     <!-- Main Content -->
     <main class="pt-32">

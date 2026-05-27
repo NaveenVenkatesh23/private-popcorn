@@ -1,11 +1,15 @@
 @extends('layouts.app')
 
 @section('meta')
-    {{-- Seo team --}}
-    <link rel="canonical" href="https://www.privatepopcorn.com/blogs" />
-    <title>Blog - Private Popcorn</title>
-    <meta name="description" content="Explore our latest articles on Private Popcorn, covering a range of topics from movie reviews to industry insights. Stay updated with our expert content.">
-    <meta name="keywords" content="Private Popcorn blog, movie reviews, film industry insights, popcorn recipes, movie news">
+<title>Blogs - Private Popcorn | Private Cinema Tips & Ideas</title>
+<meta name="description" content="Explore blogs about private cinema experiences, celebration ideas, date night tips and more from Private Popcorn Bangalore.">
+<meta name="keywords" content="private cinema blog, celebration ideas bangalore, private theatre tips">
+<meta property="og:title" content="Blogs - Private Popcorn | Private Cinema Tips & Ideas">
+<meta property="og:description" content="Explore blogs about private cinema experiences, celebration ideas and date night tips.">
+<meta property="og:url" content="https://privatepopcorn.com/blogs">
+<meta property="twitter:title" content="Blogs - Private Popcorn | Private Cinema Tips & Ideas">
+<meta property="twitter:url" content="https://privatepopcorn.com/blogs">
+<link rel="canonical" href="https://privatepopcorn.com/blogs" />
 @endsection
 
 @section('content')
