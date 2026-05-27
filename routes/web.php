@@ -45,3 +45,13 @@ Route::get('/blogs', [BlogController::class, 'index'])->name('blogs.index');
 Route::get('/blogs/{slug}', [BlogController::class, 'show'])->name('blogs.show');
 
 Route::get('/booking/receipt/{id}/download', [App\Http\Controllers\BookingController::class, 'downloadReceiptPdf']);
+
+
+Route::get('/sitemap.xml', function () {
+    $blogs = App\Models\Blog::all();
+    
+    $content = view('sitemap', compact('blogs'));
+    
+    return response($content, 200)
+        ->header('Content-Type', 'application/xml');
+});
