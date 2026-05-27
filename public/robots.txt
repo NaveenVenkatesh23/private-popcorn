@@ -12,3 +12,8 @@ Disallow: /*?*
 Allow: /wp-admin/admin-ajax.php
 
 Sitemap: https://www.privatepopcorn.com/sitemap.xml
+
+User-agent: *
+Allow: /
+
+Sitemap: https://privatepopcorn.com/sitemap.xml

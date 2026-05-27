@@ -50,8 +50,40 @@ Route::get('/booking/receipt/{id}/download', [App\Http\Controllers\BookingContro
 Route::get('/sitemap.xml', function () {
     $blogs = App\Models\Blog::all();
     
-    $content = view('sitemap', compact('blogs'));
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
     
-    return response($content, 200)
-        ->header('Content-Type', 'application/xml');
+    // Static pages
+    $staticPages = [
+        ['loc' => 'https://privatepopcorn.com/', 'priority' => '1.0', 'changefreq' => 'weekly'],
+        ['loc' => 'https://privatepopcorn.com/private-theatre-in-banglore', 'priority' => '0.8', 'changefreq' => 'monthly'],
+        ['loc' => 'https://privatepopcorn.com/booking', 'priority' => '0.9', 'changefreq' => 'weekly'],
+        ['loc' => 'https://privatepopcorn.com/blogs', 'priority' => '0.7', 'changefreq' => 'weekly'],
+        ['loc' => 'https://privatepopcorn.com/privacy-policy', 'priority' => '0.3', 'changefreq' => 'yearly'],
+        ['loc' => 'https://privatepopcorn.com/terms-and-conditions', 'priority' => '0.3', 'changefreq' => 'yearly'],
+        ['loc' => 'https://privatepopcorn.com/cancellation-and-refund', 'priority' => '0.3', 'changefreq' => 'yearly'],
+        ['loc' => 'https://privatepopcorn.com/shipping', 'priority' => '0.3', 'changefreq' => 'yearly'],
+    ];
+
+    foreach ($staticPages as $page) {
+        $xml .= '<url>';
+        $xml .= '<loc>' . $page['loc'] . '</loc>';
+        $xml .= '<changefreq>' . $page['changefreq'] . '</changefreq>';
+        $xml .= '<priority>' . $page['priority'] . '</priority>';
+        $xml .= '</url>';
+    }
+
+    // Dynamic blog pages
+    foreach ($blogs as $blog) {
+        $xml .= '<url>';
+        $xml .= '<loc>https://privatepopcorn.com/blogs/' . $blog->slug . '</loc>';
+        $xml .= '<lastmod>' . $blog->updated_at->toAtomString() . '</lastmod>';
+        $xml .= '<changefreq>monthly</changefreq>';
+        $xml .= '<priority>0.6</priority>';
+        $xml .= '</url>';
+    }
+
+    $xml .= '</urlset>';
+
+    return response($xml, 200)->header('Content-Type', 'application/xml');
 });
