@@ -209,9 +209,14 @@
                 appliedCoupon = null;
                 discountAmount = 0;
                 originalTotal = 0;
-                document.getElementById('discount-display').classList.add('hidden');
-                document.getElementById('coupon-message').classList.add('hidden');
-                document.getElementById('coupon_code').value = '';
+                const discountDisplay = document.getElementById('discount-display');
+                if (discountDisplay) discountDisplay.classList.add('hidden');
+
+                const couponMessage = document.getElementById('coupon-message');
+                if (couponMessage) couponMessage.classList.add('hidden');
+
+                const couponInput = document.getElementById('coupon_code');
+                if (couponInput) couponInput.value = '';
             }
 
             // Initially disable date and slot inputs
