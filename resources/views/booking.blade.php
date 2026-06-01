@@ -532,12 +532,10 @@
     
         let appliedCoupon = null;
         let discountAmount = 0;
-        let originalTotal = 0; 
+        let originalTotal = 0;
 
         function applyCoupon() {
             const code = document.getElementById('coupon_code').value.trim();
-            const discountDisplay = document.getElementById('discount-display');
-            const discountAmountEl = document.getElementById('discount-amount');
 
             if (!code) {
                 showCouponMessage('Please enter a coupon code.', 'red');
@@ -546,8 +544,8 @@
 
             const currentTotal = parseFloat(document.getElementById('total-price').textContent.replace('₹', '').replace(',', '')) || 0;
             originalTotal = currentTotal;
-            
-            if (currentTotal === 0 && originalTotal === 0) {
+
+            if (originalTotal === 0) {
                 showCouponMessage('Please select a theatre first.', 'red');
                 return;
             }
@@ -558,29 +556,26 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ code: code, amount: originalTotal }) // ← always use originalTotal
+                body: JSON.stringify({ code: code, amount: originalTotal })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.valid) {
                     appliedCoupon = code;
                     discountAmount = data.discount;
-
                     showCouponMessage(data.message, 'green');
-                    discountAmountEl.textContent = data.discount;
-                    discountDisplay.classList.remove('hidden');
-
-                    // Always calculate from original
                     document.getElementById('total-price').textContent = `₹${data.final_amount}`;
                 } else {
                     appliedCoupon = null;
                     discountAmount = 0;
                     originalTotal = 0;
-                    discountDisplay.classList.add('hidden');
                     showCouponMessage(data.message, 'red');
                 }
             })
-            .catch(() => showCouponMessage('Error applying coupon. Try again.', 'red'));
+            .catch((err) => {
+                console.log('Fetch error:', err);
+                showCouponMessage('Error applying coupon. Try again.', 'red');
+            });
         }
 
         function showCouponMessage(msg, color) {
