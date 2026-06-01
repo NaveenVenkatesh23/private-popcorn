@@ -544,15 +544,9 @@
                 return;
             }
 
-            // Get current displayed total
-            const currentTotal = parseFloat(document.getElementById('total-price').textContent.replace('₹', '')) || 0;
-
-            // If no coupon applied yet, store as original
-            // If coupon already applied, use stored original
-            if (!appliedCoupon) {
-                originalTotal = currentTotal;
-            }
-
+            const currentTotal = parseFloat(document.getElementById('total-price').textContent.replace('₹', '').replace(',', '')) || 0;
+            originalTotal = currentTotal;
+            
             if (currentTotal === 0 && originalTotal === 0) {
                 showCouponMessage('Please select a theatre first.', 'red');
                 return;
