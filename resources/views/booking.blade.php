@@ -543,7 +543,11 @@
             }
 
             const currentTotal = parseFloat(document.getElementById('total-price').textContent.replace('₹', '').replace(',', '')) || 0;
-            originalTotal = currentTotal;
+
+            // Only store original if no coupon applied yet
+            if (!appliedCoupon) {
+                originalTotal = currentTotal;
+            }
 
             if (originalTotal === 0) {
                 showCouponMessage('Please select a theatre first.', 'red');
