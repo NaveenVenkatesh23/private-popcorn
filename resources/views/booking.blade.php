@@ -142,6 +142,27 @@
                     </div>
                 </div>
 
+                <!-- Coupon Code -->
+                <div class="space-y-2">
+                    <label class="block text-md font-bold uppercase tracking-wider text-gold mb-2">Coupon Code</label>
+                    <div class="flex gap-3">
+                        <input
+                            type="text"
+                            id="coupon_code"
+                            placeholder="Enter coupon code"
+                            class="block w-full px-4 py-3 rounded-xl border-gray-700 bg-[#1a1a1a] text-sm text-white focus:bg-gray-800 transition-colors uppercase"
+                        >
+                        <button
+                            type="button"
+                            onclick="applyCoupon()"
+                            class="px-6 py-3 rounded-xl bg-gold text-gray-800 font-bold text-sm hover:bg-yellow-500 transition-all whitespace-nowrap"
+                        >
+                            Apply
+                        </button>
+                    </div>
+                    <p id="coupon-message" class="text-sm mt-1 hidden"></p>
+                </div>
+
                 <!-- CTA Section -->
                 <div class="pt-4 border-t border-gray-800">
                     <div class="flex items-center justify-between mb-6">
@@ -184,6 +205,13 @@
             function updateTotalPrice() {
                 const total = basePrice + addonTotal;
                 priceDisplay.textContent = `₹${total}`;
+
+                appliedCoupon = null;
+                discountAmount = 0;
+                originalTotal = 0;
+                document.getElementById('discount-display').classList.add('hidden');
+                document.getElementById('coupon-message').classList.add('hidden');
+                document.getElementById('coupon_code').value = '';
             }
 
             // Initially disable date and slot inputs
@@ -345,151 +373,222 @@
 
 
         function initiatePayment(paymentType) {
-            const selectedTheatreEl = document.querySelector('input[name="theatre"]:checked');
-            if (!selectedTheatreEl) {
-                alert('Please select a theatre.');
-                return;
+        const selectedTheatreEl = document.querySelector('input[name="theatre"]:checked');
+        if (!selectedTheatreEl) {
+            alert('Please select a theatre.');
+            return;
+        }
+
+        const theatre_id = selectedTheatreEl.value;
+        const theatre_name = selectedTheatreEl.closest('label').querySelector('span.block.text-md').textContent;
+
+        // Parse theatre price as float
+        let total_price = parseFloat(selectedTheatreEl.getAttribute('data-price'));
+
+        // Get selected addons
+        const addonCheckboxes = document.querySelectorAll('input[name="addon"]:checked');
+        const addonIds = [];
+        const addonNames = [];
+        let addonsTotal = 0;
+
+        addonCheckboxes.forEach(cb => {
+            addonIds.push(cb.dataset.id);
+            addonNames.push(cb.dataset.name);
+            addonsTotal += parseFloat(cb.dataset.price);
+        });
+
+        total_price += addonsTotal;
+
+        // Contact info
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('contact_no').value;
+        const email = document.getElementById('email').value;
+
+        if (!name || !phone || !email) {
+            alert('Please fill all contact details');
+            return;
+        }
+
+        // Client-side phone number validation
+        const phonePattern = /^[0-9]{10}$/;
+        if (!phonePattern.test(phone)) {
+            alert('Please enter a valid 10-digit phone number.');
+            return;
+        }
+
+        const booking_date = document.getElementById('date').value;
+        if (!booking_date) {
+            alert('Please select a date.');
+            return;
+        }
+
+        const selectedSlotEl = document.querySelector('input[name="slot"]:checked');
+        if (!selectedSlotEl || selectedSlotEl.disabled) {
+            alert('Please select an available slot.');
+            return;
+        }
+        const slot = selectedSlotEl.value;
+
+        const purposeSelect = document.getElementById('purpose');
+        const purpose = purposeSelect.options[purposeSelect.selectedIndex].text;
+
+        // Get coupon code if applied
+        const coupon_code = appliedCoupon || null;
+
+        // Create Razorpay order
+        fetch('/create-order', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                theatre_id: theatre_id,
+                addons: addonIds,
+                payment_type: paymentType,
+                coupon_code: coupon_code   // ← added
+            })
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.text().then(text => { throw new Error(text) });
             }
+            return res.json();
+        })
+        .then(order => {
+            var options = {
+                key: "{{ env('RAZORPAY_KEY') }}",
+                amount: order.amount,
+                currency: "INR",
+                order_id: order.id,
+                name: "{{ env('APP_NAME') }}",
+                description: "Booking Payment",
+                handler: function(response) {
+                    // Successful payment
+                    fetch('/save-booking', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            theatre_id: theatre_id,
+                            theatre_name: theatre_name,
+                            name: name,
+                            contact_no: phone,
+                            email: email,
+                            booking_date: booking_date,
+                            slot: slot,
+                            purpose: purpose,
+                            addon: addonNames,
+                            total_price: order.paid_amount,
+                            coupon_code: coupon_code,        // ← added
+                            discount_amount: order.discount, // ← added
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            window.location.href = `/booking/success?booking_id=${data.booking_id}`;
+                        } else {
+                            window.location.href = '/booking/failed';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error saving booking:', error);
+                        window.location.href = '/booking/failed';
+                    });
+                },
+                modal: {
+                    ondismiss: function() {
+                        window.location.href = '/booking/failed';
+                    }
+                }
+            };
 
-            const theatre_id = selectedTheatreEl.value;
-            const theatre_name = selectedTheatreEl.closest('label').querySelector('span.block.text-md').textContent;
+            var rzp = new Razorpay(options);
 
-            // Parse theatre price as float
-            let total_price = parseFloat(selectedTheatreEl.getAttribute('data-price'));
-
-            // Get selected addons
-            const addonCheckboxes = document.querySelectorAll('input[name="addon"]:checked');
-            const addonIds = [];
-            const addonNames = [];
-            let addonsTotal = 0;
-
-            addonCheckboxes.forEach(cb => {
-                addonIds.push(cb.dataset.id);           // send IDs to backend
-                addonNames.push(cb.dataset.name);       // for display / saving
-                addonsTotal += parseFloat(cb.dataset.price); // sum prices
+            rzp.on('payment.failed', function(response){
+                console.error('Razorpay payment failed:', response);
+                window.location.href = '/booking/failed';
             });
 
-            total_price += addonsTotal;
+            rzp.open();
+        })
+        .catch((error) => {
+            console.error('Could not initiate payment. Server response:', error.message);
+            alert('Could not initiate payment. Please try again. Check the browser console for more details.');
+        });
+    }
 
-            // Contact info
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('contact_no').value;
-            const email = document.getElementById('email').value;
+    
+        let appliedCoupon = null;
+        let discountAmount = 0;
+        let originalTotal = 0; 
 
-            if (!name || !phone || !email) {
-                alert('Please fill all contact details');
+        function applyCoupon() {
+            const code = document.getElementById('coupon_code').value.trim();
+            const discountDisplay = document.getElementById('discount-display');
+            const discountAmountEl = document.getElementById('discount-amount');
+
+            if (!code) {
+                showCouponMessage('Please enter a coupon code.', 'red');
                 return;
             }
 
-            // Client-side phone number validation
-            const phonePattern = /^[0-9]{10}$/;
-            if (!phonePattern.test(phone)) {
-                alert('Please enter a valid 10-digit phone number.');
+            // Get current displayed total
+            const currentTotal = parseFloat(document.getElementById('total-price').textContent.replace('₹', '')) || 0;
+
+            // If no coupon applied yet, store as original
+            // If coupon already applied, use stored original
+            if (!appliedCoupon) {
+                originalTotal = currentTotal;
+            }
+
+            if (currentTotal === 0 && originalTotal === 0) {
+                showCouponMessage('Please select a theatre first.', 'red');
                 return;
             }
 
-            const booking_date = document.getElementById('date').value;
-            if (!booking_date) {
-                alert('Please select a date.');
-                return;
-            }
-
-            const selectedSlotEl = document.querySelector('input[name="slot"]:checked');
-            if (!selectedSlotEl || selectedSlotEl.disabled) {
-                alert('Please select an available slot.');
-                return;
-            }
-            const slot = selectedSlotEl.value;
-
-            const purposeSelect = document.getElementById('purpose');
-            const purpose = purposeSelect.options[purposeSelect.selectedIndex].text;
-
-            // Create Razorpay order
-            fetch('/create-order', {
+            fetch('/apply-coupon', {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    theatre_id: theatre_id,
-                    addons: addonIds,
-                    payment_type: paymentType
-                })
+                body: JSON.stringify({ code: code, amount: originalTotal }) // ← always use originalTotal
             })
-            .then(res => {
-                if (!res.ok) {
-                    return res.text().then(text => { throw new Error(text) });
+            .then(res => res.json())
+            .then(data => {
+                if (data.valid) {
+                    appliedCoupon = code;
+                    discountAmount = data.discount;
+
+                    showCouponMessage(data.message, 'green');
+                    discountAmountEl.textContent = data.discount;
+                    discountDisplay.classList.remove('hidden');
+
+                    // Always calculate from original
+                    document.getElementById('total-price').textContent = `₹${data.final_amount}`;
+                } else {
+                    appliedCoupon = null;
+                    discountAmount = 0;
+                    originalTotal = 0;
+                    discountDisplay.classList.add('hidden');
+                    showCouponMessage(data.message, 'red');
                 }
-                return res.json();
             })
-            .then(order => {
-                var options = {
-                    key: "{{ env('RAZORPAY_KEY') }}",
-                    amount: order.amount, // from server
-                    currency: "INR",
-                    order_id: order.id,
-                    name: "{{ env('APP_NAME') }}",
-                    description: "Booking Payment",
-                    handler: function(response) {
-                        // Successful payment
-                        fetch('/save-booking', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                theatre_id: theatre_id,
-                                theatre_name: theatre_name,
-                                name: name,
-                                contact_no: phone,
-                                email: email,
-                                booking_date: booking_date,
-                                slot: slot,
-                                purpose: purpose,
-                                addon: addonNames,
-                                total_price: order.paid_amount, // send paid amount
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_signature: response.razorpay_signature
-                            })
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if(data.success) {
-                                window.location.href = `/booking/success?booking_id=${data.booking_id}`;
-                            } else {
-                                window.location.href = '/booking/failed';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error saving booking:', error);
-                            window.location.href = '/booking/failed';
-                        });
-                    },
-                    modal: {
-                        ondismiss: function() {
-                            // Only called if user closes modal without paying
-                            window.location.href = '/booking/failed';
-                        }
-                    }
-                };
+            .catch(() => showCouponMessage('Error applying coupon. Try again.', 'red'));
+        }
 
-                var rzp = new Razorpay(options);
-
-                // Only for failed payment events triggered by Razorpay
-                rzp.on('payment.failed', function(response){
-                    console.error('Razorpay payment failed:', response);
-                    window.location.href = '/booking/failed';
-                });
-
-                rzp.open();
-            })
-            .catch((error) => {
-                console.error('Could not initiate payment. Server response:', error.message);
-                alert('Could not initiate payment. Please try again. Check the browser console for more details.');
-            });
+        function showCouponMessage(msg, color) {
+            const el = document.getElementById('coupon-message');
+            el.textContent = msg;
+            el.className = `text-sm mt-1 ${color === 'green' ? 'text-green-400' : 'text-red-400'}`;
+            el.classList.remove('hidden');
         }
     </script>
 @endsection

@@ -76,9 +76,10 @@ class BookingController extends Controller
 
         $request->validate([
             'theatre_id' => 'required|exists:theatres,id',
-            'addons' => 'nullable|array', // expect array of addon IDs
+            'addons' => 'nullable|array',
             'addons.*' => 'exists:addons,id',
             'payment_type' => 'required|in:full,partial',
+            'coupon_code' => 'nullable|string',
         ]);
 
         $theatre = Theatre::findOrFail($request->theatre_id);
@@ -98,12 +99,32 @@ class BookingController extends Controller
             }
         }
 
+        // Apply coupon if provided
+        $discountAmount = 0;
+        $couponCode = null;
+
+        if ($request->filled('coupon_code')) {
+            $coupon = \App\Models\Coupon::where('code', strtoupper($request->coupon_code))
+                        ->where('is_active', true)
+                        ->first();
+
+            if ($coupon) {
+                $result = $coupon->isValid($totalAmount);
+                if ($result['valid']) {
+                    $discountAmount = $coupon->getDiscount($totalAmount);
+                    $totalAmount = $totalAmount - $discountAmount;
+                    $couponCode = $coupon->code;
+                    $coupon->increment('used_count');
+                }
+            }
+        }
+
         $amountToPay = $totalAmount;
         if ($request->payment_type === 'partial') {
             $amountToPay = 300; // Partial payment of ₹300
         }
 
-        $amountInPaise = round($amountToPay * 100); // Razorpay expects amount in paise
+        $amountInPaise = round($amountToPay * 100);
 
         $api = new Api(
             config('services.razorpay.key'),
@@ -115,16 +136,20 @@ class BookingController extends Controller
             'currency' => 'INR',
             'receipt'  => 'booking_' . time(),
             'notes' => [
-                'total_amount' => $totalAmount
+                'total_amount' => $totalAmount,
+                'discount_amount' => $discountAmount,
+                'coupon_code' => $couponCode,
             ]
         ]);
 
         return response()->json([
-            'id'       => $order->id,
-            'amount'   => $order->amount,
-            'currency' => $order->currency,
-            'addons'   => $selectedAddons, // optional, for debugging
-            'total'    => $totalAmount,     // optional, for client-side display
+            'id'          => $order->id,
+            'amount'      => $order->amount,
+            'currency'    => $order->currency,
+            'addons'      => $selectedAddons,
+            'total'       => $totalAmount,
+            'discount'    => $discountAmount,
+            'coupon_code' => $couponCode,
             'paid_amount' => $amountToPay
         ]);
     }
@@ -222,5 +247,39 @@ class BookingController extends Controller
         $fileName = 'receipt-' . $booking->razorpay_payment_id . '.pdf';
         $pdf = Pdf::loadView('receipt', compact('booking', 'total_price', 'paid_amount', 'due_amount'));
         return $pdf->download($fileName);
+    }
+
+
+    public function applyCoupon(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        $coupon = \App\Models\Coupon::where('code', strtoupper($request->code))
+                    ->where('is_active', true)
+                    ->first();
+
+        if (!$coupon) {
+            return response()->json(['valid' => false, 'message' => 'Invalid coupon code.']);
+        }
+
+        $result = $coupon->isValid($request->amount);
+
+        if (!$result['valid']) {
+            return response()->json($result);
+        }
+
+        $discount = $coupon->getDiscount($request->amount);
+        $finalAmount = $request->amount - $discount;
+
+        return response()->json([
+            'valid' => true,
+            'message' => 'Coupon applied successfully!',
+            'discount' => $discount,
+            'final_amount' => $finalAmount,
+            'coupon_code' => $coupon->code,
+        ]);
     }
 }

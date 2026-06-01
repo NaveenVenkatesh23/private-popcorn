@@ -22,6 +22,8 @@ class Booking extends Model
         'purpose',
         'addon',
         'total_price',
+        'coupon_code',
+        'discount_amount',
         'razorpay_payment_id',
         'razorpay_order_id',
         'razorpay_signature',
