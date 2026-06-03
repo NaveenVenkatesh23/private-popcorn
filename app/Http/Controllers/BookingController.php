@@ -265,8 +265,8 @@ class BookingController extends Controller
         if (!$coupon) {
             return response()->json(['valid' => false, 'message' => 'Invalid coupon code.']);
         }
-
-        $result = $coupon->isValid($request->amount);
+        
+        $result = $coupon->isValid($request->amount, $request->booking_date);
 
         if (!$result['valid']) {
             return response()->json($result);
