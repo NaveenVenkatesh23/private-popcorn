@@ -256,6 +256,7 @@ class BookingController extends Controller
             'code' => 'required|string',
             'amount' => 'required|numeric|min:0',
             'booking_date' => 'nullable|date',
+            'slot_time' => 'nullable|string',
         ]);
 
         $coupon = \App\Models\Coupon::where('code', strtoupper($request->code))
@@ -266,7 +267,7 @@ class BookingController extends Controller
             return response()->json(['valid' => false, 'message' => 'Invalid coupon code.']);
         }
         
-        $result = $coupon->isValid($request->amount, $request->booking_date);
+        $result = $coupon->isValid($request->amount, $request->booking_date, $request->slot_time);
 
         if (!$result['valid']) {
             return response()->json($result);

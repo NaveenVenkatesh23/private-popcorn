@@ -274,6 +274,7 @@
                         input.classList.add('peer', 'sr-only');
                         input.required = true;
                         input.setAttribute('data-slot-value', slotData.slot); // Store slot value
+                        input.setAttribute('data-start-time', slotData.start_time);
 
                         const div = document.createElement('div');
                         div.classList.add('p-4', 'bg-[#1a1a1a]', 'border-2', 'rounded-xl', 'cursor-pointer', 'text-center', 'transition-all', 'border-gray-700', 'hover:border-gold', 'peer-checked:border-gold', 'peer-checked:bg-gray-800');
@@ -560,7 +561,10 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ code: code, amount: originalTotal, booking_date: document.getElementById('date').value })
+                body: JSON.stringify({ code: code, 
+                                       amount: originalTotal, 
+                                       booking_date: document.getElementById('date').value,
+                                       slot_time: document.querySelector('input[name="slot"]:checked')?.getAttribute('data-start-time') || null })
             })
             .then(res => res.json())
             .then(data => {

@@ -18,7 +18,7 @@ class Coupon extends Model
         'valid_days' => 'array',
     ];
 
-    public function isValid($orderAmount, $bookingDate = null): array
+    public function isValid($orderAmount, $bookingDate = null, $slotTime = null): array
     {
         if (!$this->is_active) {
             return ['valid' => false, 'message' => 'Coupon is inactive.'];
@@ -53,15 +53,18 @@ class Coupon extends Model
 
         // Check time restriction (IST) - still based on current time
         if ($this->valid_from_time && $this->valid_until_time) {
-            $nowIST = Carbon::now('Asia/Kolkata');
-            $currentTime = $nowIST->format('H:i:s');
-
-            if ($currentTime < $this->valid_from_time || $currentTime > $this->valid_until_time) {
-                $from = Carbon::parse($this->valid_from_time)->format('h:i A');
-                $until = Carbon::parse($this->valid_until_time)->format('h:i A');
-                return ['valid' => false, 'message' => "Coupon valid only between {$from} - {$until} IST."];
-            }
+        if ($slotTime) {
+            $checkTime = $slotTime; // e.g. "11:30:00"
+        } else {
+            $checkTime = Carbon::now('Asia/Kolkata')->format('H:i:s');
         }
+
+        if ($checkTime < $this->valid_from_time || $checkTime > $this->valid_until_time) {
+            $from = Carbon::parse($this->valid_from_time)->format('h:i A');
+            $until = Carbon::parse($this->valid_until_time)->format('h:i A');
+            return ['valid' => false, 'message' => "Coupon valid only for slots between {$from} - {$until}."];
+        }
+    }
 
         return ['valid' => true, 'message' => 'Coupon applied successfully!'];
     }
