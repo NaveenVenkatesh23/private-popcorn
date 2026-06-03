@@ -565,7 +565,7 @@
                 body: JSON.stringify({ code: code, 
                                        amount: originalTotal, 
                                        booking_date: document.getElementById('date').value,
-                                       slot_time: document.querySelector('input[name="slot"]:checked')?.getAttribute('data-start-time') || null })
+                                       slot_time: document.querySelector('input[name="slot"]:checked') ? document.querySelector('input[name="slot"]:checked').getAttribute('data-start-time') : null })
             })
             .then(res => res.json())
             .then(data => {
