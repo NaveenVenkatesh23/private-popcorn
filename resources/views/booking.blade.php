@@ -452,7 +452,8 @@
                 theatre_id: theatre_id,
                 addons: addonIds,
                 payment_type: paymentType,
-                coupon_code: coupon_code   // ← added
+                coupon_code: coupon_code   
+                slot_time: document.querySelector('input[name="slot"]:checked')?.getAttribute('data-start-time') || null
             })
         })
         .then(res => {
