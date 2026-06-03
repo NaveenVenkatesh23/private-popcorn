@@ -80,6 +80,7 @@ class BookingController extends Controller
             'addons.*' => 'exists:addons,id',
             'payment_type' => 'required|in:full,partial',
             'coupon_code' => 'nullable|string',
+            'slot_time' => 'nullable|string',
         ]);
 
         $theatre = Theatre::findOrFail($request->theatre_id);
@@ -109,7 +110,7 @@ class BookingController extends Controller
                         ->first();
 
             if ($coupon) {
-                $result = $coupon->isValid($totalAmount);
+                $result = $coupon->isValid($totalAmount, null, $request->slot_time);
                 if ($result['valid']) {
                     $discountAmount = $coupon->getDiscount($totalAmount);
                     $totalAmount = $totalAmount - $discountAmount;
