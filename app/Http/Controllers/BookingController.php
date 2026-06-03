@@ -255,6 +255,7 @@ class BookingController extends Controller
         $request->validate([
             'code' => 'required|string',
             'amount' => 'required|numeric|min:0',
+            'booking_date' => 'nullable|date',
         ]);
 
         $coupon = \App\Models\Coupon::where('code', strtoupper($request->code))

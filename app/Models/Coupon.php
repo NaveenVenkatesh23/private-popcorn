@@ -18,7 +18,7 @@ class Coupon extends Model
         'valid_days' => 'array',
     ];
 
-    public function isValid($orderAmount): array
+    public function isValid($orderAmount, $bookingDate = null): array
     {
         if (!$this->is_active) {
             return ['valid' => false, 'message' => 'Coupon is inactive.'];
@@ -36,17 +36,22 @@ class Coupon extends Model
             return ['valid' => false, 'message' => "Minimum order of ₹{$this->min_order} required."];
         }
 
-        // Check day restriction (IST)
+        // Check day restriction based on booking date
         if ($this->valid_days && count($this->valid_days) > 0) {
-            $todayIST = Carbon::now('Asia/Kolkata')->format('l'); // e.g. "Wednesday"
+            $checkDate = $bookingDate 
+                ? Carbon::parse($bookingDate, 'Asia/Kolkata') 
+                : Carbon::now('Asia/Kolkata');
+            
+            $dayOfWeek = $checkDate->format('l'); // e.g. "Wednesday"
             $validDays = array_map('strtolower', $this->valid_days);
-            if (!in_array(strtolower($todayIST), $validDays)) {
+            
+            if (!in_array(strtolower($dayOfWeek), $validDays)) {
                 $days = implode(', ', array_map('ucfirst', $validDays));
                 return ['valid' => false, 'message' => "Coupon valid only on: {$days}."];
             }
         }
 
-        // Check time restriction (IST)
+        // Check time restriction (IST) - still based on current time
         if ($this->valid_from_time && $this->valid_until_time) {
             $nowIST = Carbon::now('Asia/Kolkata');
             $currentTime = $nowIST->format('H:i:s');

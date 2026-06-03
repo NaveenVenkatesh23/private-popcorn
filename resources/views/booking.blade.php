@@ -560,7 +560,7 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ code: code, amount: originalTotal })
+                body: JSON.stringify({ code: code, amount: originalTotal, booking_date: document.getElementById('date').value })
             })
             .then(res => res.json())
             .then(data => {
