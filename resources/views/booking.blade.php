@@ -453,6 +453,7 @@
                 addons: addonIds,
                 payment_type: paymentType,
                 coupon_code: coupon_code,   
+                booking_date: booking_date,
                 slot_time: document.querySelector('input[name="slot"]:checked')?.getAttribute('data-start-time') || null
             })
         })

@@ -80,6 +80,7 @@ class BookingController extends Controller
             'addons.*' => 'exists:addons,id',
             'payment_type' => 'required|in:full,partial',
             'coupon_code' => 'nullable|string',
+            'booking_date' => 'nullable|date',
             'slot_time' => 'nullable|string',
         ]);
 
@@ -110,7 +111,7 @@ class BookingController extends Controller
                         ->first();
 
             if ($coupon) {
-                $result = $coupon->isValid($totalAmount, null, $request->slot_time);
+                $result = $coupon->isValid($totalAmount, $request->booking_date, $request->slot_time);
                 if ($result['valid']) {
                     $discountAmount = $coupon->getDiscount($totalAmount);
                     $totalAmount = $totalAmount - $discountAmount;
