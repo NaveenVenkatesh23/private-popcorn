@@ -48,11 +48,9 @@ Route::get('/booking/receipt/{id}/download', [App\Http\Controllers\BookingContro
 
 
 Route::get('/sitemap.xml', function () {
-    $blogs = App\Models\Blog::all();
-    
     $xml = '<?xml version="1.0" encoding="UTF-8"?>';
     $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-    
+
     // Static pages
     $staticPages = [
         ['loc' => 'https://privatepopcorn.com/', 'priority' => '1.0', 'changefreq' => 'weekly'],
@@ -65,6 +63,12 @@ Route::get('/sitemap.xml', function () {
         ['loc' => 'https://privatepopcorn.com/shipping', 'priority' => '0.3', 'changefreq' => 'yearly'],
     ];
 
+    // Static blog pages
+    $staticBlogs = [
+        ['loc' => 'https://privatepopcorn.com/blogs/perfect-private-cinema-night-bangalore', 'lastmod' => '2026-01-15', 'changefreq' => 'monthly', 'priority' => '0.6'],
+        ['loc' => 'https://privatepopcorn.com/blogs/celebration-ideas-private-theatre', 'lastmod' => '2026-01-20', 'changefreq' => 'monthly', 'priority' => '0.6'],
+    ];
+
     foreach ($staticPages as $page) {
         $xml .= '<url>';
         $xml .= '<loc>' . $page['loc'] . '</loc>';
@@ -73,13 +77,12 @@ Route::get('/sitemap.xml', function () {
         $xml .= '</url>';
     }
 
-    // Dynamic blog pages
-    foreach ($blogs as $blog) {
+    foreach ($staticBlogs as $blog) {
         $xml .= '<url>';
-        $xml .= '<loc>https://privatepopcorn.com/blogs/' . $blog->slug . '</loc>';
-        $xml .= '<lastmod>' . $blog->updated_at->toAtomString() . '</lastmod>';
-        $xml .= '<changefreq>monthly</changefreq>';
-        $xml .= '<priority>0.6</priority>';
+        $xml .= '<loc>' . $blog['loc'] . '</loc>';
+        $xml .= '<lastmod>' . $blog['lastmod'] . '</lastmod>';
+        $xml .= '<changefreq>' . $blog['changefreq'] . '</changefreq>';
+        $xml .= '<priority>' . $blog['priority'] . '</priority>';
         $xml .= '</url>';
     }
 
